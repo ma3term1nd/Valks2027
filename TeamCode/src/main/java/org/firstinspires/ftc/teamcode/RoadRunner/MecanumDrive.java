@@ -59,7 +59,7 @@ public final class MecanumDrive {
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
                 RevHubOrientationOnRobot.LogoFacingDirection.UP;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 
         // drive model parameters
         public double inPerTick = 1;
@@ -110,6 +110,7 @@ public final class MecanumDrive {
     public final VoltageSensor voltageSensor;
 
     public final LazyImu lazyImu;
+    public double maxSpeed = 1.00;
 
     public final Localizer localizer;
     private final LinkedList<Pose2d> poseHistory = new LinkedList<>();
@@ -493,4 +494,57 @@ public final class MecanumDrive {
                 defaultVelConstraint, defaultAccelConstraint
         );
     }
+
+    // NEW STUFF //
+
+
+    public void MecanumDrive(double forward, double strafe, double rotate) {
+        //ly = forward
+        //lx = strafe
+        //rx = rotate
+        double frontLeftPower = forward + strafe + rotate;
+        double backLeftPower = forward - strafe + rotate;
+        double frontRightPower = forward - strafe - rotate;
+        double backRightPower = forward + strafe - rotate;
+
+
+
+
+        double maxPower = 1.00;
+
+
+
+
+        maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(backLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(frontRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backRightPower));
+
+
+
+
+        leftFront.setPower(maxSpeed * (frontLeftPower / maxPower));
+        leftBack.setPower(maxSpeed * (backLeftPower / maxPower));
+        rightFront.setPower(maxSpeed * (frontRightPower / maxPower));
+        rightBack.setPower(maxSpeed * (backRightPower / maxPower));
+    }
+
+
+    public void driveFieldRelative(double inputForward, double inputStrafe, double inputRotate){
+        double newForward, newStrafe, newRotate; //we ignore newRotate
+        double heading = lazyImu.get().getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+
+
+
+        //changing input to field centric
+        newForward = inputForward * Math.cos(heading) - inputStrafe * Math.sin(heading);
+        newStrafe = inputStrafe * Math.cos(heading) + inputForward * Math.sin(heading);
+
+
+
+
+        this.MecanumDrive(newForward, newStrafe, inputRotate);
+    }
+
 }
