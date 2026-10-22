@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.main;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
@@ -8,9 +9,10 @@ import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 public class Valks2027_TeleOp extends OpMode {
 
     MecanumDrive drive;
+    Pose2d beginPos = new Pose2d(60,12,Math.toRadians(180));
 
     public void init() {
-        //blank
+        drive = new MecanumDrive(hardwareMap, beginPos);
     }
 
     public void loop() {
